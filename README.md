@@ -1,5 +1,6 @@
 # ICRAR_DIA
 
+This is some work I've been doing related to my friends in DIA - ICRAR :). 
 
 Description of the Algorithm: 
 
