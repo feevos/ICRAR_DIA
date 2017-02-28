@@ -106,6 +106,30 @@ toolbox.register("select", tools.selTournament, tournsize=3) # good choice
 
 
 
+# --------------------------------------------------------------------------------------------------------------------------------------------
+# Things you may want to modify: how you calculate total transfer and processing times. 
+def total_transfer_time(individual):
+    """
+	Function that calculates for each individual the total transfer time among various threads. 
+    """
+    # BUG in here: there is not point to perform the division if invidual[i]==individual[j], i.e. no tranfer along diagonal elements. Modify! 
+    # Summing allong each ROW, this follows from the AdjMatrix definition
+    transfer_time = np.sum([ node_volume[i]/thread_traffic[individual[i],individual[j]] 
+                                for i,j  in itertools.izip(DAG_AdjMatrix.row,
+                                                           DAG_AdjMatrix.col)])
+    return transfer_time
+
+def total_process_time(individual):
+    """
+ 	Function that calculates total processing times. 
+    """
+   
+    process_time_total = np.sum(node_load / thread_speed[individual])
+    return process_time_total 
+# --------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 # This is my fitness function 
 def FitFunc(individual):
@@ -116,17 +140,10 @@ def FitFunc(individual):
     perm: individual
     DAG_AdjMatrix: the initial Adjucent matrix of the DAG. 
     '''
-    # perm = np.array(individual) # Try to define the EA with numpy arrays instead, to avoid casting on run time 
+    # perm = np.array(individual)
     # DAG_AdjMatrix : Scipy Sparse matrix csr 
-    # permutation: an array of integers that consists of a random shaffling 
-    process_time_total = np.sum(node_load / thread_speed[individual])
-    
-    ########################## MAYDAY HERE!!!! ###############################
-    # Summing allong each ROW, this follows from the AdjMatrix definition
-    transfer_time_total = np.sum([ node_volume[i]/thread_traffic[individual[i],individual[j]] 
-                                for i,j  in itertools.izip(DAG_AdjMatrix.row,
-                                                           DAG_AdjMatrix.col)])
-
+    process_time_total = total_process_time(individual)
+    transfer_time_total = total_transfer_time(individual) 
 
     total_time =  process_time_total + transfer_time_total 
 
